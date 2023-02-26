@@ -1,0 +1,81 @@
+
+GCC debug helper (almost everything is valid for G++)
+
+Components of compiler:
+
+1. Preprocessor
+2. Syntax Compiler
+3. Assembler
+4. Linker
+
+Save preprocessed file:
+gcc -E test.c > preproc
+
+Save asm file:
+gcc -S test.c 
+
+Save all temp files:
+gcc -save-temps test.c
+
+Show all warnings:
+-Wall 
+
+Convert all warnings to error:
+-Werror -Wall 
+
+To link libraries for GCC only:
+gcc test.c -o main -l m
+
+But in g++ it workes without '-l m'
+g++ test.c -o main
+
+To create shared .so file:
+$ gcc -c -Wall -fPIC test.c -o main.so
+or
+$ gcc -c -Wall -shared test.c -o main.so
+
+Verbose compilation:
+gcc -v test.c 
+
+ANSI checks:
+ccc; gcc -v test.c -l m -ansi 
+
+Other checks:
+-funsigned-char
+-fsigned-char
+
+Define macro while invoking binary:
+-DMY_MACRO
+
+GDB:
+
+Create binary for debug to be used by GDB:
+gcc -g test.c -l m
+
+For memleaks:
+valgrind
+
+For profiling (very old tool, don't use):
+gprof
+
+Better tool for profiling:
+gperf
+
+Important paths:
+
+Runtime libraries (.dll, .so):
+PATH
+
+Header files
+CPATH
+C_INCLUDE_PATH (can be used if particular language was indicated in pre-processing)
+
+Library parths for link libraries
+LIBRARY_PATH
+
+Learn about functions:
+nm a.out  
+
+List dynamically linked libraries:
+ldd a.out
+
