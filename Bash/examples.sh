@@ -10,4 +10,7 @@ sed -n 10p abcd.txt
 readarray -n 10 -t arr < 'abcd.txt' && echo "${arr[9]}"
 # OR
 # Tail the file starting from 10th line and then print 1 line.
-tail -n+10 abcd.txt | head -n1 
+tail -n+10 abcd.txt | head -n1
+
+# Compare two binary files.
+cmp -l bin_file_1 bin_file_2 | gawk '{printf "%08X %02X %02X\n", $1, strtonum(0$2), strtonum(0$3)}'
