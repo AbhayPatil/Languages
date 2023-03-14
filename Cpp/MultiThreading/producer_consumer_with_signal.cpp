@@ -24,62 +24,65 @@ enum NumType { EVEN, ODD };
 
 template <typename E> class blocking_queue {
 private:
-  queue<E> _queue;
+  queue<E> queue_;
 
-  mutex _mtx;
-  condition_variable _cond;
+  mutex mtx_;
+  condition_variable cond_;
 
-  bool *done;
-  int _max_size;
+  bool done_notify_;
+  int max_size_;
+
+  bool consumed_all_elements() { return done_notify_ && queue_.empty(); }
 
 public:
-  blocking_queue(int max_size, bool *done_in) : _max_size(max_size) {
-    done = done_in;
-  }
+  blocking_queue(int max_size) : max_size_(max_size) { done_notify_ = false; }
 
   void push(E e) {
-    unique_lock<mutex> lock(_mtx);
+    unique_lock<mutex> lock(mtx_);
 
-    // To ensure that the queue size never exceeds _max_size.
-    _cond.wait(lock, [this]() { return _queue.size() < _max_size; });
+    // To ensure that the queue size never exceeds max_size_.
+    cond_.wait(lock, [this]() { return queue_.size() < max_size_; });
 
-    _queue.push(e);
+    queue_.push(e);
 
     lock.unlock();
-    _cond.notify_all();
+    cond_.notify_all();
   }
 
-  E pop(NumType nt) {
-    unique_lock<mutex> lock(_mtx);
+  E pop(NumType nt, bool *consumed_all) {
+    unique_lock<mutex> lock(mtx_);
+
+    if (consumed_all_elements()) {
+      *consumed_all = true;
+    }
 
     // To ensure that queue is read only if it is non empty.
-    _cond.wait(lock, [this]() { return !_queue.empty() || *done; });
+    cond_.wait(lock, [this]() { return !queue_.empty() || done_notify_; });
 
-    E item = _queue.front();
+    E item = queue_.front();
 
     // Only pop if the correct consumer (odd/even) is calling pop().
     int rem = (nt == ODD) ? 1 : 0;
-    if (item % 2 != rem || _queue.empty()) {
-      _cond.notify_all();
+    if (item % 2 != rem || queue_.empty()) {
+      cond_.notify_all();
       return -1;
     }
-    _queue.pop();
+    queue_.pop();
 
-    _mtx.unlock();
-    _cond.notify_all();
+    mtx_.unlock();
+    cond_.notify_all();
     return item;
   }
 
-  bool isEmpty() {
-    lock_guard<mutex> m(_mtx);
-    return _queue.empty();
+  void set_done_notify() {
+    lock_guard<mutex> m(mtx_);
+    done_notify_ = true;
   }
 };
 
 int main() {
-  bool done = false;
 
-  blocking_queue<int> qu(5, &done);
+  blocking_queue<int> qu(5);
 
   int producer_interval = 1;
   int consumer_odd_interval = 2;
@@ -90,48 +93,60 @@ int main() {
   int nums_produced = 0;
 
   thread consumer_even([&]() {
+    bool consumed_all = false;
     while (true) {
-      if (done && qu.isEmpty())
-        break;
       this_thread::sleep_for(chrono::milliseconds(consumer_even_interval));
-      auto item = qu.pop(EVEN);
+
+      auto item = qu.pop(EVEN, &consumed_all);
+      if (consumed_all == true)
+        break;
+
       if (item != -1) {
         // cout << "Even consumed " << item << endl;
         even_consumed++;
       }
     }
+    cout << "Exiting even consumer thread" << endl;
   });
 
   thread consumer_odd([&]() {
+    bool consumed_all = false;
     while (true) {
-      if (done && qu.isEmpty())
-        break;
       this_thread::sleep_for(chrono::milliseconds(consumer_odd_interval));
-      auto item = qu.pop(ODD);
+
+      auto item = qu.pop(ODD, &consumed_all);
+      if (consumed_all == true)
+        break;
+
       if (item != -1) {
         // cout << "Odd consumed " << item << endl;
         odd_consumed++;
       }
     }
+    cout << "Exiting odd consumer thread" << endl;
   });
 
   thread producer([&]() {
-    for (int i = 0; i < 25; i++) {
+    for (int i = 0; i < 2500; i++) {
       this_thread::sleep_for(chrono::milliseconds(producer_interval));
+
       qu.push(i);
+
       // cout << "Added " << i << endl;
       nums_produced++;
     }
-    done = true;
+    qu.set_done_notify();
+    cout << "Exiting number producer thread" << endl;
   });
 
   producer.join();
   consumer_even.join();
   consumer_odd.join();
 
+  cout << endl;
+  cout << "Total nums produced: " << nums_produced << endl;
   cout << "Total even consumed: " << even_consumed << endl;
   cout << "Total odd consumed: " << odd_consumed << endl;
-  cout << "Total nums produced: " << nums_produced << endl;
 
   return 0;
 }
