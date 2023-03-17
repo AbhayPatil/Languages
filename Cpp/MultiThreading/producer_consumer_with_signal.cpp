@@ -127,7 +127,7 @@ int main() {
   });
 
   thread producer([&]() {
-    for (int i = 0; i < 2500; i++) {
+    for (int i = 0; i < 20; i++) {
       this_thread::sleep_for(chrono::milliseconds(producer_interval));
 
       qu.push(i);
