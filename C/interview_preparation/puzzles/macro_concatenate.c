@@ -2,17 +2,15 @@
 
 #define CONCAT(a, b) a##b
 
-int get_second() {
-  return 456;
-}
+int get_second() { return 456; }
 
 int main(void) {
 
-    // Works
-   printf("%d ", CONCAT(123, 456));
+  // Works
+  printf("%d ", CONCAT(123, 456));
 
-   // Does not work
-   // printf("%d ", CONCAT(123, get_second()));
-   
-   return 0;
+  // Does not work
+  // printf("%d ", CONCAT(123, get_second()));
+
+  return 0;
 }
