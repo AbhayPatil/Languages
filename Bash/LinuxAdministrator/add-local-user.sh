@@ -3,7 +3,7 @@
 # Check if running as super user
 if [[ ${UID} != "0" ]]
 then
-  echo "This script must be executed only by root"
+  echo "This script must be executed with sudo or by root"
   exit 1
 fi
 
