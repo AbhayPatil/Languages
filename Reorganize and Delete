@@ -1,0 +1,4 @@
+C++ intptr_t 
+The primary reason, you cannot do bitwise operation on a void *, but you can do the same on a intptr_t.
+On many occassion, where you need to perform bitwise operation on an address, you can use intptr_t.
+However, for bitwise operations, best approach is to use the unsigned counterpart, uintptr_t.
