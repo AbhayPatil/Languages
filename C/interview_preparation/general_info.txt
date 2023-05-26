@@ -1,0 +1,12 @@
+
+1. 
+In global scope:
+static int MyNumber; // Global variable accessible only from same file.
+extern int MyNumber; // Global variable accessible from other files as well.
+
+2.
+In function scope:
+static int MyNumber; // Allocated in heap. Retains value across function calls.
+int MyNumber; // Allocated in stack. Deallocates when it goes out of scope.
+
+2. 
