@@ -1,0 +1,22 @@
+Arabic Asalaam-alaikum 
+Chinese Nǐn-hǎo 
+Danish Goddag 
+Dutch Goedendag 
+French Bonjour 
+German Guten-Tag 
+Greek Yassas 
+Hebrew Shalom 
+Hindi Namaste
+Marathi Namaskar
+Indonesian Selamat-siang
+Italian Ciao
+Japanese Konnichiwa 
+Korean Anyoung-haseyo 
+Norwegian Hallo
+Polish Dzień dobry 
+Portuguese Olá 
+Russian Priviyet
+Spanish Hola 
+Swahili Shikamoo 
+Swedish God-dag 
+Turkish Merhaba 
